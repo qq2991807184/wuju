@@ -1,0 +1,311 @@
+# 无极 · 发布与自动更新工作流
+#
+# 复用来源：rank-analysis（同为 Tauri 2 栈）
+# 启用时机：M6 里程碑（当前项目尚无脚手架，此时触发会失败，属正常）
+#
+# 工作流做什么：
+#   1. 推 v* 标签 → 触发
+#   2. 从 tag 解析版本号（tag 是唯一真相源），写进 tauri.conf.json
+#   3. 构建 Windows 安装包(.exe) + 便携版(.7z)，并用密钥签名
+#   4. 生成 latest.json（更新清单）
+#   5. 创建 GitHub Release 上传全部产物
+#   6. 同步一份到 GitCode 国内镜像（国内玩家也能自动更新）
+#
+# ⚠️ 需要先在仓库 Secrets 配置：
+#   TAURI_SIGNING_PRIVATE_KEY / TAURI_SIGNING_KEY_PASSWORD / GITCODE_TOKEN
+# ⚠️ 需要替换占位符：__OWNER__ / __REPO__
+
+name: 发布
+
+on:
+  # 主路径：推送 v* 标签即发版（tag 名是唯一的版本真相源）
+  push:
+    tags: ['v*']
+  # 兜底：手动补发，需显式填版本号
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '要发布的版本号，例如 v0.1.0（手动触发时必填）'
+        required: false
+        default: ''
+      notes:
+        description: '更新说明（可选，会追加到自动生成的日志前）'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  # ============ 任务一：构建并发布到 GitHub ============
+  build-and-release:
+    name: 构建并发布（Windows）
+    runs-on: windows-latest
+
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+
+    steps:
+      - name: 📥 检出仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛠️ 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 🦀 安装 Rust 工具链
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 📦 安装依赖
+        run: npm ci
+
+      # --- 从 tag 解析版本号（tag 为唯一真相源）---
+      # 仓库里 tauri.conf.json 的 version 只是占位值，不参与解析。
+      - name: 🔍 解析版本号
+        id: get_version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+              $v = "${{ github.ref_name }}"
+          } else {
+              $v = "${{ github.event.inputs.version }}"
+          }
+          if ([string]::IsNullOrWhiteSpace($v)) {
+              Write-Error "没有拿到版本号。请推一个 v0.1.0 这样的标签，或手动填 version。"
+              exit 1
+          }
+          if ($v -notlike 'v*') { $v = "v$v" }
+          $clean = $v -replace '^v',''
+          Write-Host "发布版本：$v（纯版本号：$clean）"
+          echo "version=$v" >> $env:GITHUB_OUTPUT
+          echo "clean_version=$clean" >> $env:GITHUB_OUTPUT
+
+      # --- 把版本号写进 tauri.conf.json（仅改 CI 工作区，不回写仓库）---
+      - name: 🔧 同步版本号到 tauri.conf.json
+        shell: bash
+        env:
+          CLEAN: ${{ steps.get_version.outputs.clean_version }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const f = "src-tauri/tauri.conf.json";
+            const j = JSON.parse(fs.readFileSync(f, "utf8"));
+            j.version = process.env.CLEAN;
+            fs.writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
+            console.log("tauri.conf.json 版本号已设为 " + j.version);
+          '
+
+      # --- 构建并签名 ---
+      - name: 🔨 构建（含更新签名）
+        run: npm run tauri build
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+
+      # --- 重命名、打包便携版、整理签名 ---
+      - name: 📝 整理产物
+        id: prepare_assets
+        shell: pwsh
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+        run: |
+          $version = "${{ steps.get_version.outputs.version }}"
+          $clean = $version -replace '^v',''
+          $nsisDir = "src-tauri/target/release/bundle/nsis"
+          $releaseDir = "src-tauri/target/release"
+          $appName = "wuju"
+
+          # 1) 安装包 + 签名
+          $installer = Get-ChildItem -Path $nsisDir -Filter "*.exe" -ErrorAction Stop
+          $sig = Get-ChildItem -Path $nsisDir -Filter "*.sig" -ErrorAction SilentlyContinue
+          if ($installer.Count -ne 1) { Write-Error "预期 1 个安装包，实际 $($installer.Count)"; exit 1 }
+
+          $setupName = "$appName-$clean-setup.exe"
+          Rename-Item -Path $installer[0].FullName -NewName $setupName
+
+          $sigName = "$setupName.sig"
+          if ($sig.Count -gt 0) {
+            Rename-Item -Path $sig[0].FullName -NewName $sigName
+          } else {
+            Write-Host "未发现 .sig，显式生成中…"
+            if ([string]::IsNullOrEmpty($env:TAURI_PRIVATE_KEY)) { Write-Error "缺少签名私钥"; exit 1 }
+            npx tauri signer sign (Join-Path $nsisDir $setupName)
+          }
+          $sigPath = "$($env:GITHUB_WORKSPACE)/$nsisDir/$sigName"
+          if (-not (Test-Path $sigPath)) { Write-Error "签名文件缺失：$sigPath"; exit 1 }
+
+          # 2) 便携版（绿色版）
+          $exeName = "$appName.exe"
+          $portableName = "$appName-$clean-portable.7z"
+          if (-not (Test-Path "$releaseDir/$exeName")) { Write-Error "找不到主程序，无法打便携包"; exit 1 }
+          Push-Location $releaseDir
+          7z a -t7z $portableName $exeName
+          Pop-Location
+
+          # 3) 输出路径
+          echo "setup_path=$($env:GITHUB_WORKSPACE)/$nsisDir/$setupName" >> $env:GITHUB_OUTPUT
+          echo "portable_path=$($env:GITHUB_WORKSPACE)/$releaseDir/$portableName" >> $env:GITHUB_OUTPUT
+          echo "sig_path=$sigPath" >> $env:GITHUB_OUTPUT
+
+      # --- 生成更新清单 latest.json（必须在创建 Release 前完成）---
+      - name: 📝 生成 latest.json
+        shell: bash
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+          NOTES: ${{ github.event.inputs.notes }}
+          SETUP_PATH: ${{ steps.prepare_assets.outputs.setup_path }}
+          SIG_PATH: ${{ steps.prepare_assets.outputs.sig_path }}
+          OWNER: __OWNER__
+          REPO: __REPO__
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const version = process.env.VERSION;
+            const setupPath = process.env.SETUP_PATH;
+            const sigPath = process.env.SIG_PATH;
+            const exeFile = path.basename(setupPath);
+
+            let signature = "";
+            if (sigPath && fs.existsSync(sigPath)) {
+              signature = fs.readFileSync(sigPath, "utf8").trim();
+            } else {
+              console.error("::error::签名文件缺失，latest.json 不能为空签名");
+              process.exit(1);
+            }
+
+            const data = {
+              version: version,
+              notes: process.env.NOTES || "详情请看 GitHub Release 页面。",
+              pub_date: new Date().toISOString(),
+              platforms: {
+                "windows-x86_64": {
+                  signature: signature,
+                  url: `https://github.com/${process.env.OWNER}/${process.env.REPO}/releases/download/${version}/${exeFile}`
+                }
+              }
+            };
+            fs.writeFileSync("latest.json", JSON.stringify(data, null, 2));
+            console.log("latest.json 已生成");
+          '
+
+      - name: 🚀 创建 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: 无极 ${{ steps.get_version.outputs.version }}
+          body: ${{ github.event.inputs.notes }}
+          files: |
+            ${{ steps.prepare_assets.outputs.setup_path }}
+            ${{ steps.prepare_assets.outputs.portable_path }}
+            latest.json
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: false
+
+  # ============ 任务二：同步到 GitCode 国内镜像 ============
+  # 目的：国内玩家也能自动更新（GitHub 直连太慢）
+  # 说明：GitCode 走华为云 OBS 预签名上传；latest.json 里的下载地址会改写成 gitcode.com 域名
+  gitcode-release:
+    name: 同步到 GitCode 国内镜像
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    env:
+      GH_OWNER: __OWNER__
+      GH_REPO: __REPO__
+      GC_OWNER: __OWNER__
+      GC_REPO: __REPO__
+      VERSION: ${{ needs.build-and-release.outputs.version }}
+      GITCODE_TOKEN: ${{ secrets.GITCODE_TOKEN }}
+
+    steps:
+      - name: ⏳ 等待 GitHub Release 就绪
+        run: sleep 30
+
+      - name: ⬇️ 下载产物
+        run: |
+          mkdir -p dist
+          gh release download "$VERSION" --repo "$GH_OWNER/$GH_REPO" \
+            --pattern '*-setup.exe' --pattern '*-portable.7z' --pattern 'latest.json' \
+            --dir dist
+          ls -la dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 创建 GitCode Release 并上传
+        run: |
+          python3 - <<'PY'
+          import os, json, glob, urllib.request, urllib.parse, urllib.error
+
+          token = os.environ["GITCODE_TOKEN"]
+          owner, repo = os.environ["GC_OWNER"], os.environ["GC_REPO"]
+          version = os.environ["VERSION"]
+          api = f"https://api.gitcode.com/api/v5/repos/{owner}/{repo}"
+          AUTH = {"private-token": token}
+
+          def call(url, data=None, method="GET", headers=None):
+              r = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+              try:
+                  resp = urllib.request.urlopen(r)
+                  return resp.status, resp.read()
+              except urllib.error.HTTPError as e:
+                  return e.code, e.read()
+
+          body = f"国内镜像发布 {version}"
+          lj = glob.glob("dist/latest.json")
+          if lj:
+              try:
+                  body = json.load(open(lj[0])).get("notes") or body
+              except Exception:
+                  pass
+
+          st, _ = call(f"{api}/releases/tags/{version}", headers=AUTH)
+          if st == 200:
+              print("release 已存在，跳过创建")
+          else:
+              payload = json.dumps({
+                  "tag_name": version, "name": version, "body": body,
+                  "prerelease": False,
+              }).encode()
+              st, b = call(f"{api}/releases", payload, "POST",
+                           {"Content-Type": "application/json;charset=UTF-8", "private-token": token})
+              print("创建 release:", st, b[:200])
+              if st not in (200, 201):
+                  raise SystemExit("创建 release 失败")
+
+          # 改写 latest.json 的下载地址为 GitCode 域名
+          for p in lj:
+              d = json.load(open(p))
+              setup = glob.glob("dist/*-setup.exe")
+              if setup:
+                  name = os.path.basename(setup[0])
+                  d.setdefault("platforms", {}).setdefault("windows-x86_64", {})["url"] = \
+                      f"https://gitcode.com/{owner}/{repo}/releases/download/{version}/{name}"
+              json.dump(d, open(p, "w"), ensure_ascii=False, indent=2)
+
+          def upload(path):
+              fn, size = os.path.basename(path), os.path.getsize(path)
+              q = urllib.parse.urlencode({"file_name": fn, "file_size": size})
+              st, b = call(f"{api}/releases/{version}/upload_url?{q}", headers=AUTH)
+              if st != 200:
+                  raise SystemExit(f"获取上传地址失败 {fn}: {st} {b[:200]}")
+              info = json.loads(b)
+              st, b = call(info["url"], open(path, "rb").read(), "PUT", info.get("headers", {}))
+              print(f"上传 {fn} ({size} 字节): {st}")
+              if st != 200:
+                  raise SystemExit(f"上传失败 {fn}: {st}")
+
+          for pat in ("dist/*-setup.exe", "dist/*-portable.7z", "dist/latest.json"):
+              for p in glob.glob(pat):
+                  upload(p)
+          print("GitCode 镜像同步完成")
+          PY

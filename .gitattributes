@@ -1,0 +1,19 @@
+# 统一换行符：仓库里统一存 LF，各系统检出时自动转换
+# 不加这个文件，Windows 上会一直报 "LF will be replaced by CRLF" 警告
+* text=auto
+
+# 这些是二进制文件，不要做换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.zip binary
+*.7z binary
+
+# 锁文件不要参与 diff 统计
+package-lock.json -diff
+pnpm-lock.yaml -diff

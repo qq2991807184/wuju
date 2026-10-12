@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>无极之道 · 四种风格对比</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#08080b;color:#e8e8ee;
+  font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+  font-size:14px;line-height:1.6;padding:26px 20px 60px;
+}
+svg{display:block}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- 页面顶栏 ---------- */
+.top{max-width:1080px;margin:0 auto 26px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.top h1{font-size:16px;font-weight:500}
+.top p{font-size:12.5px;color:#8b8b98;margin-top:4px}
+.tbtn{padding:8px 15px;border-radius:9px;background:#16161c;border:1px solid rgba(255,255,255,.1);font-size:12.5px;color:#a8a8b6}
+
+/* ---------- 风格块 ---------- */
+.blk{max-width:1080px;margin:0 auto 34px;padding:20px;border-radius:20px;background:var(--bg);
+     transition:background .35s ease,color .35s ease;color:var(--text);font-size:var(--fs,14px)}
+[data-style="3"].blk{background-image:radial-gradient(420px 260px at 12% 0%,rgba(37,99,235,.45),transparent 70%),
+  radial-gradient(380px 240px at 88% 20%,rgba(124,58,237,.4),transparent 70%),
+  radial-gradient(360px 220px at 50% 110%,rgba(6,182,212,.3),transparent 70%)}
+.blk-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding-left:4px}
+.blk-no{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:500}
+.blk-h b{font-size:15px;font-weight:500}
+.blk-h i{font-style:normal;font-size:12.5px;color:var(--text-3)}
+
+/* ========== 风格1 现代柔和（Naive UI 观感） ========== */
+[data-style="1"]{--bg:#0b0b0f;--surface:#141419;--surface-2:#1a1a21;--surface-3:#22222b;
+ --border:rgba(255,255,255,.07);--border-2:rgba(255,255,255,.13);
+ --text:#ececf1;--text-2:#9b9ba7;--text-3:#6c6c78;
+ --accent:#7c6cf5;--accent-2:#a78bfa;--accent-soft:rgba(124,108,245,.15);
+ --win:#34d399;--loss:#fb7185;--fs:14px;--r:14px;--r-s:9px;
+ --sh-1:0 1px 2px rgba(0,0,0,.5);--sh-2:0 6px 20px rgba(0,0,0,.45);--sh-3:0 24px 70px rgba(0,0,0,.6)}
+[data-theme="light"] [data-style="1"]{--bg:#eef0f5;--surface:#fff;--surface-2:#f7f8fb;--surface-3:#edeff5;
+ --border:rgba(20,20,45,.08);--border-2:rgba(20,20,45,.15);
+ --text:#16161f;--text-2:#5c5c6d;--text-3:#8b8b9c;--accent:#6252e8;--accent-2:#8b7cf6;--accent-soft:rgba(98,82,232,.1);
+ --win:#0f9d76;--loss:#e5484d;--sh-1:0 1px 2px rgba(20,20,45,.06);--sh-2:0 6px 20px rgba(20,20,45,.09);--sh-3:0 24px 70px rgba(20,20,45,.16)}
+
+/* ========== 风格2 极简锐利（Linear / shadcn） ========== */
+[data-style="2"]{--bg:#09090b;--surface:#0b0b0d;--surface-2:#0f0f12;--surface-3:#16161a;
+ --border:rgba(255,255,255,.06);--border-2:rgba(255,255,255,.12);
+ --text:#f4f4f5;--text-2:#a1a1aa;--text-3:#6f6f78;
+ --accent:#5e6ad2;--accent-2:#7c85e0;--accent-soft:rgba(94,106,210,.18);
+ --win:#4ade80;--loss:#f87171;--fs:13px;--r:7px;--r-s:5px;
+ --sh-1:none;--sh-2:0 1px 3px rgba(0,0,0,.6);--sh-3:0 14px 44px rgba(0,0,0,.7)}
+[data-theme="light"] [data-style="2"]{--bg:#fafafa;--surface:#fff;--surface-2:#fafafa;--surface-3:#f4f4f5;
+ --border:rgba(0,0,0,.07);--border-2:rgba(0,0,0,.13);--text:#18181b;--text-2:#52525b;--text-3:#a1a1aa;
+ --accent:#5e6ad2;--accent-2:#7c85e0;--accent-soft:rgba(94,106,210,.1);--win:#16a34a;--loss:#dc2626;
+ --sh-1:none;--sh-2:0 1px 2px rgba(0,0,0,.05);--sh-3:0 14px 44px rgba(0,0,0,.1)}
+
+/* ========== 风格3 玻璃拟态 ========== */
+[data-style="3"]{--bg:#0a0d1a;--surface:rgba(255,255,255,.06);--surface-2:rgba(255,255,255,.05);--surface-3:rgba(255,255,255,.1);
+ --border:rgba(255,255,255,.15);--border-2:rgba(255,255,255,.26);
+ --text:#f2f5ff;--text-2:#a9b2d0;--text-3:#727c9c;
+ --accent:#38bdf8;--accent-2:#a78bfa;--accent-soft:rgba(56,189,248,.18);
+ --win:#34d399;--loss:#fb7185;--fs:14px;--r:18px;--r-s:12px;
+ --sh-1:0 1px 0 rgba(255,255,255,.07) inset;--sh-2:0 14px 44px rgba(0,0,0,.42);--sh-3:0 34px 90px rgba(0,0,0,.55)}
+[data-theme="light"] [data-style="3"]{--bg:#e6eaf7;--surface:rgba(255,255,255,.62);--surface-2:rgba(255,255,255,.5);--surface-3:rgba(255,255,255,.8);
+ --border:rgba(255,255,255,.85);--border-2:rgba(120,130,180,.28);--text:#12152a;--text-2:#525a78;--text-3:#8b93ad;
+ --accent:#2563eb;--accent-2:#7c3aed;--accent-soft:rgba(37,99,235,.1);--win:#059669;--loss:#dc2626;
+ --sh-1:0 1px 0 rgba(255,255,255,.9) inset;--sh-2:0 14px 40px rgba(60,70,120,.14);--sh-3:0 30px 80px rgba(60,70,120,.22)}
+
+/* ========== 风格4 游戏客户端（深蓝 + 金） ========== */
+[data-style="4"]{--bg:#070d19;--surface:#0A1428;--surface-2:#0e1b33;--surface-3:#15294b;
+ --border:rgba(200,170,110,.2);--border-2:rgba(200,170,110,.4);
+ --text:#F0E6D2;--text-2:#C8AA6E;--text-3:#8a7a52;
+ --accent:#C8AA6E;--accent-2:#F0E6D2;--accent-soft:rgba(200,170,110,.14);
+ --win:#5DCAA5;--loss:#E24B4A;--fs:14px;--r:5px;--r-s:3px;
+ --sh-1:0 0 0 1px rgba(200,170,110,.08);--sh-2:0 10px 30px rgba(0,0,0,.6),0 0 26px rgba(200,170,110,.08);--sh-3:0 34px 90px rgba(0,0,0,.75),0 0 70px rgba(200,170,110,.1)}
+[data-theme="light"] [data-style="4"]{--bg:#efe9dc;--surface:#faf6ec;--surface-2:#f4eddd;--surface-3:#e9dfc9;
+ --border:rgba(120,90,40,.22);--border-2:rgba(120,90,40,.42);--text:#2b2317;--text-2:#6b5836;--text-3:#9a8760;
+ --accent:#785A28;--accent-2:#a8842f;--accent-soft:rgba(120,90,40,.1);--win:#2f7d5a;--loss:#b23b3b;
+ --sh-1:0 1px 2px rgba(90,70,30,.1);--sh-2:0 10px 26px rgba(90,70,30,.14);--sh-3:0 30px 70px rgba(90,70,30,.2)}
+
+/* ---------- 窗口 ---------- */
+.window{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-3);overflow:hidden;transition:all .35s ease}
+[data-style="3"] .window,[data-style="3"] .card,[data-style="3"] .panel,[data-style="3"] .sidebar,[data-style="3"] .titlebar{
+  backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%)}
+.titlebar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 15px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.05),transparent)}
+[data-style="2"] .titlebar{background:none}
+[data-style="4"] .titlebar{background:linear-gradient(180deg,rgba(200,170,110,.09),transparent)}
+.tl{display:flex;align-items:center;gap:10px;font-size:13.5px;letter-spacing:.6px}
+[data-style="4"] .tl{color:var(--accent);letter-spacing:2px}
+.mark{width:22px;height:22px;border-radius:var(--r-s);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:500;background:linear-gradient(140deg,var(--accent-2),var(--accent));box-shadow:0 4px 14px var(--accent-soft)}
+[data-style="2"] .mark{background:var(--accent);box-shadow:none}
+[data-style="4"] .mark{background:linear-gradient(140deg,#F0E6D2,#785A28);color:#0A1428;box-shadow:0 0 18px rgba(200,170,110,.5)}
+.wbtns{display:flex;gap:2px}
+.wbtn{width:36px;height:30px;border-radius:var(--r-s);display:grid;place-items:center;color:var(--text-3)}
+.wbtn.x{color:var(--loss)}
+.body{display:flex;min-height:330px}
+.sidebar{width:170px;flex:none;padding:14px 11px;display:flex;flex-direction:column;gap:3px;background:var(--surface-2);border-right:1px solid var(--border)}
+[data-style="4"] .sidebar{background:linear-gradient(180deg,#0e1b33,#0A1428)}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--r-s);font-size:13px;color:var(--text-2);position:relative}
+.nav.on{background:var(--accent-soft);color:var(--accent);font-weight:500}
+[data-style="4"] .nav.on{background:linear-gradient(90deg,rgba(200,170,110,.2),transparent);box-shadow:inset 0 0 0 1px rgba(200,170,110,.25)}
+.nav.on::before{content:"";position:absolute;left:-11px;top:50%;transform:translateY(-50%);width:3px;height:17px;border-radius:0 3px 3px 0;background:var(--accent)}
+.nav svg{width:16px;height:16px;flex:none}
+.grow{flex:1}
+.sfoot{padding:11px;font-size:11.5px;color:var(--text-3);border-top:1px solid var(--border);margin-top:8px;line-height:1.7}
+.main{flex:1;padding:22px 26px;display:flex;flex-direction:column;gap:15px;min-width:0}
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.h1{font-size:21px;font-weight:500;letter-spacing:.5px}
+[data-style="2"] .h1{font-size:19px;letter-spacing:-.2px}
+[data-style="4"] .h1{letter-spacing:3px;color:var(--accent)}
+.sub{font-size:12.5px;color:var(--text-3);margin-top:5px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;color:var(--text-2)}
+[data-style="4"] .pill{border-radius:3px;border-color:rgba(200,170,110,.35)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--win);box-shadow:0 0 0 3px rgba(52,211,153,.18)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:15px 16px;box-shadow:var(--sh-1);transition:all .3s ease}
+[data-style="4"] .card{background:linear-gradient(160deg,#122444,#0A1428);border-radius:4px}
+.card .k{font-size:11.5px;color:var(--text-3)}
+.card .v{font-size:23px;font-weight:500;margin-top:8px;letter-spacing:-.4px}
+.card .d{font-size:11px;color:var(--text-3);margin-top:4px}
+.up{color:var(--win)}
+.panel{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-1);overflow:hidden}
+[data-style="4"] .panel{border-radius:4px;background:linear-gradient(160deg,#122444,#0A1428)}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text-2)}
+.row{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.bar2{width:3px;height:32px;border-radius:2px;flex:none}
+.bar2.w{background:linear-gradient(180deg,var(--win),transparent)}
+.bar2.l{background:linear-gradient(180deg,var(--loss),transparent)}
+.ava{width:34px;height:34px;border-radius:var(--r-s);flex:none;display:grid;place-items:center;font-size:12.5px;font-weight:500;color:var(--text-2);background:var(--surface-3);border:1px solid var(--border)}
+[data-style="4"] .ava{border-radius:2px;border-color:rgba(200,170,110,.3);color:var(--accent)}
+.who{display:flex;flex-direction:column;gap:1px}
+.who b{font-weight:500;font-size:13px}
+.who i{font-style:normal;font-size:11.5px;color:var(--text-3)}
+.kda{font-size:12.5px}
+.tag{font-size:11px;padding:2px 8px;border-radius:6px}
+[data-style="4"] .tag{border-radius:2px}
+.tag.w{color:var(--win);background:rgba(52,211,153,.12)}
+.tag.l{color:var(--loss);background:rgba(251,113,133,.12)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div>
+    <h1>无极之道 · 四种风格对比</h1>
+    <p>四种风格全部上下排开，往下滚就能看全，不用点任何按钮。</p>
+  </div>
+  <button class="tbtn" id="tb">切换 深色 / 浅色</button>
+</div>
+
+<!-- ===== 风格1 ===== -->
+<section class="blk" data-style="1">
+  <div class="blk-h"><span class="blk-no">风格 1</span><b>现代柔和</b><i>大圆角 + 柔和阴影 + 紫色渐变 · 就是 Naive UI 的常见观感，稳妥通用</i></div>
+  <div class="window">
+    <div class="titlebar">
+      <div class="tl"><div class="mark">Z</div><span>无极之道</span></div>
+      <div class="wbtns">
+        <button class="wbtn"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/></svg></button>
+        <button class="wbtn"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
+        <button class="wbtn x"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="body">
+      <aside class="sidebar">
+        <div class="nav on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.6 12 3.6l9 7v9.4a1 1 0 0 1-1 1h-5.2v-6.4H9.2v6.4H4a1 1 0 0 1-1-1z"/></svg>首页</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 20h17M7 20v-7M12 20V5M17 20v-9"/></svg>战绩查询</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M17.5 3.5 20.5 6.5 9.5 17.5 5 19l1.5-4.5z"/></svg>对局分析</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M9 6.5V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5"/></svg>实用工具</div>
+        <div class="grow"></div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2 2 2 0 1 1-2.8-2.8A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-2.9 2 2 0 1 1 2.8-2.8A1.7 1.7 0 0 0 10 3a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.5 2 2 0 1 1 2.8 2.8A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4 1.7 1.7 0 0 0-1.6 1z"/></svg>设置</div>
+        <div class="sfoot">版本 1.0.0<br>by 老朱</div>
+      </aside>
+      <div class="main">
+        <div class="head">
+          <div><div class="h1">首页</div><div class="sub">召唤师 · 铂金 II · 68 胜点</div></div>
+          <div class="pill"><span class="dot"></span>已连接</div>
+        </div>
+        <div class="stats">
+          <div class="card"><div class="k">近期战绩</div><div class="v num">12 胜 7 负</div><div class="d">最近 20 场</div></div>
+          <div class="card"><div class="k">胜率</div><div class="v num">63%</div><div class="d up">↑ 高于同段位 12%</div></div>
+          <div class="card"><div class="k">场均 KDA</div><div class="v num">3.4</div><div class="d">近 20 场平均</div></div>
+          <div class="card"><div class="k">最近一局</div><div class="v" style="color:var(--win)">胜利</div><div class="d">3 小时前</div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span>最近对局</span><span>全部 · 排位 · 匹配</span></div>
+          <div class="row"><span class="bar2 w"></span><span class="ava">亚</span><span class="who"><b>亚索</b><i>中单 · 32:14</i></span><span style="flex:1"></span><span class="kda num">8 / 2 / 11</span><span class="tag w">胜</span></div>
+          <div class="row"><span class="bar2 l"></span><span class="ava">李</span><span class="who"><b>李青</b><i>打野 · 28:03</i></span><span style="flex:1"></span><span class="kda num">3 / 7 / 5</span><span class="tag l">负</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 风格2 ===== -->
+<section class="blk" data-style="2">
+  <div class="blk-h"><span class="blk-no">风格 2</span><b>极简锐利</b><i>小圆角 + 几乎无阴影 + 黑白灰为主 · Linear / Vercel 那种"高级感"，信息更密</i></div>
+  <div class="window">
+    <div class="titlebar">
+      <div class="tl"><div class="mark">Z</div><span>无极之道</span></div>
+      <div class="wbtns">
+        <button class="wbtn"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/></svg></button>
+        <button class="wbtn"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
+        <button class="wbtn x"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="body">
+      <aside class="sidebar">
+        <div class="nav on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.6 12 3.6l9 7v9.4a1 1 0 0 1-1 1h-5.2v-6.4H9.2v6.4H4a1 1 0 0 1-1-1z"/></svg>首页</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 20h17M7 20v-7M12 20V5M17 20v-9"/></svg>战绩查询</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M17.5 3.5 20.5 6.5 9.5 17.5 5 19l1.5-4.5z"/></svg>对局分析</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M9 6.5V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5"/></svg>实用工具</div>
+        <div class="grow"></div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2 2 2 0 1 1-2.8-2.8A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-2.9 2 2 0 1 1 2.8-2.8A1.7 1.7 0 0 0 10 3a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.5 2 2 0 1 1 2.8 2.8A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4 1.7 1.7 0 0 0-1.6 1z"/></svg>设置</div>
+        <div class="sfoot">版本 1.0.0<br>by 老朱</div>
+      </aside>
+      <div class="main">
+        <div class="head">
+          <div><div class="h1">首页</div><div class="sub">召唤师 · 铂金 II · 68 胜点</div></div>
+          <div class="pill"><span class="dot"></span>已连接</div>
+        </div>
+        <div class="stats">
+          <div class="card"><div class="k">近期战绩</div><div class="v num">12 胜 7 负</div><div class="d">最近 20 场</div></div>
+          <div class="card"><div class="k">胜率</div><div class="v num">63%</div><div class="d up">↑ 高于同段位 12%</div></div>
+          <div class="card"><div class="k">场均 KDA</div><div class="v num">3.4</div><div class="d">近 20 场平均</div></div>
+          <div class="card"><div class="k">最近一局</div><div class="v" style="color:var(--win)">胜利</div><div class="d">3 小时前</div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span>最近对局</span><span>全部 · 排位 · 匹配</span></div>
+          <div class="row"><span class="bar2 w"></span><span class="ava">亚</span><span class="who"><b>亚索</b><i>中单 · 32:14</i></span><span style="flex:1"></span><span class="kda num">8 / 2 / 11</span><span class="tag w">胜</span></div>
+          <div class="row"><span class="bar2 l"></span><span class="ava">李</span><span class="who"><b>李青</b><i>打野 · 28:03</i></span><span style="flex:1"></span><span class="kda num">3 / 7 / 5</span><span class="tag l">负</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 风格3 ===== -->
+<section class="blk" data-style="3">
+  <div class="blk-h"><span class="blk-no">风格 3</span><b>玻璃拟态</b><i>半透明面板 + 强毛玻璃 + 背景彩色光斑 · 通透、有未来感（吃性能）</i></div>
+  <div class="window">
+    <div class="titlebar">
+      <div class="tl"><div class="mark">Z</div><span>无极之道</span></div>
+      <div class="wbtns">
+        <button class="wbtn"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/></svg></button>
+        <button class="wbtn"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
+        <button class="wbtn x"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="body">
+      <aside class="sidebar">
+        <div class="nav on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.6 12 3.6l9 7v9.4a1 1 0 0 1-1 1h-5.2v-6.4H9.2v6.4H4a1 1 0 0 1-1-1z"/></svg>首页</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 20h17M7 20v-7M12 20V5M17 20v-9"/></svg>战绩查询</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M17.5 3.5 20.5 6.5 9.5 17.5 5 19l1.5-4.5z"/></svg>对局分析</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M9 6.5V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5"/></svg>实用工具</div>
+        <div class="grow"></div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2 2 2 0 1 1-2.8-2.8A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-2.9 2 2 0 1 1 2.8-2.8A1.7 1.7 0 0 0 10 3a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.5 2 2 0 1 1 2.8 2.8A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4 1.7 1.7 0 0 0-1.6 1z"/></svg>设置</div>
+        <div class="sfoot">版本 1.0.0<br>by 老朱</div>
+      </aside>
+      <div class="main">
+        <div class="head">
+          <div><div class="h1">首页</div><div class="sub">召唤师 · 铂金 II · 68 胜点</div></div>
+          <div class="pill"><span class="dot"></span>已连接</div>
+        </div>
+        <div class="stats">
+          <div class="card"><div class="k">近期战绩</div><div class="v num">12 胜 7 负</div><div class="d">最近 20 场</div></div>
+          <div class="card"><div class="k">胜率</div><div class="v num">63%</div><div class="d up">↑ 高于同段位 12%</div></div>
+          <div class="card"><div class="k">场均 KDA</div><div class="v num">3.4</div><div class="d">近 20 场平均</div></div>
+          <div class="card"><div class="k">最近一局</div><div class="v" style="color:var(--win)">胜利</div><div class="d">3 小时前</div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span>最近对局</span><span>全部 · 排位 · 匹配</span></div>
+          <div class="row"><span class="bar2 w"></span><span class="ava">亚</span><span class="who"><b>亚索</b><i>中单 · 32:14</i></span><span style="flex:1"></span><span class="kda num">8 / 2 / 11</span><span class="tag w">胜</span></div>
+          <div class="row"><span class="bar2 l"></span><span class="ava">李</span><span class="who"><b>李青</b><i>打野 · 28:03</i></span><span style="flex:1"></span><span class="kda num">3 / 7 / 5</span><span class="tag l">负</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 风格4 ===== -->
+<section class="blk" data-style="4">
+  <div class="blk-h"><span class="blk-no">风格 4</span><b>游戏客户端</b><i>深蓝底 + 金色描边 + 发光 + 直角 · 最像英雄联盟客户端（注意：这版界面用了金色）</i></div>
+  <div class="window">
+    <div class="titlebar">
+      <div class="tl"><div class="mark">Z</div><span>无极之道</span></div>
+      <div class="wbtns">
+        <button class="wbtn"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/></svg></button>
+        <button class="wbtn"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
+        <button class="wbtn x"><svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="body">
+      <aside class="sidebar">
+        <div class="nav on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.6 12 3.6l9 7v9.4a1 1 0 0 1-1 1h-5.2v-6.4H9.2v6.4H4a1 1 0 0 1-1-1z"/></svg>首页</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 20h17M7 20v-7M12 20V5M17 20v-9"/></svg>战绩查询</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M17.5 3.5 20.5 6.5 9.5 17.5 5 19l1.5-4.5z"/></svg>对局分析</div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M9 6.5V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5"/></svg>实用工具</div>
+        <div class="grow"></div>
+        <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2 2 2 0 1 1-2.8-2.8A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-2.9 2 2 0 1 1 2.8-2.8A1.7 1.7 0 0 0 10 3a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.5 2 2 0 1 1 2.8 2.8A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4 1.7 1.7 0 0 0-1.6 1z"/></svg>设置</div>
+        <div class="sfoot">版本 1.0.0<br>by 老朱</div>
+      </aside>
+      <div class="main">
+        <div class="head">
+          <div><div class="h1">首页</div><div class="sub">召唤师 · 铂金 II · 68 胜点</div></div>
+          <div class="pill"><span class="dot"></span>已连接</div>
+        </div>
+        <div class="stats">
+          <div class="card"><div class="k">近期战绩</div><div class="v num">12 胜 7 负</div><div class="d">最近 20 场</div></div>
+          <div class="card"><div class="k">胜率</div><div class="v num">63%</div><div class="d up">↑ 高于同段位 12%</div></div>
+          <div class="card"><div class="k">场均 KDA</div><div class="v num">3.4</div><div class="d">近 20 场平均</div></div>
+          <div class="card"><div class="k">最近一局</div><div class="v" style="color:var(--win)">胜利</div><div class="d">3 小时前</div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span>最近对局</span><span>全部 · 排位 · 匹配</span></div>
+          <div class="row"><span class="bar2 w"></span><span class="ava">亚</span><span class="who"><b>亚索</b><i>中单 · 32:14</i></span><span style="flex:1"></span><span class="kda num">8 / 2 / 11</span><span class="tag w">胜</span></div>
+          <div class="row"><span class="bar2 l"></span><span class="ava">李</span><span class="who"><b>李青</b><i>打野 · 28:03</i></span><span style="flex:1"></span><span class="kda num">3 / 7 / 5</span><span class="tag l">负</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.getElementById('tb').addEventListener('click',()=>{
+  const h=document.documentElement;
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark');
+});
+</script>
+</body>
+</html>
