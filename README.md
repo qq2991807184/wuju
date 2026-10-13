@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/images/splash-dark.png" width="600" alt="无极之道 · 启动页">
+<img src="docs/images/splash-dark.png" width="600" alt="AI 无极之道 · 启动页">
 
-# 无极之道
+# AI 无极之道
 
 **真正的大师，永远怀着一颗学徒的心**
 
@@ -12,7 +12,7 @@
 ![平台](https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Windows-0078D6)
 ![状态](https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E5%BC%80%E5%8F%91%E4%B8%AD-orange)
 
-**中文名：无极之道 ｜ English name: Wuju ｜ 仓库标识符：`wuju`**
+**中文名：AI 无极之道 ｜ English name: Wuju ｜ 仓库标识符：`wuju`**
 
 </div>
 
